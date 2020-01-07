@@ -8,5 +8,5 @@ setup(
     url='http://github.com/ulfmagnetics/signage-air-quality',
     license='LICENSE',
     description='Air quality classes for the signage system',
-    install_requires=['textwrap']
+    install_requires=[]
 )
