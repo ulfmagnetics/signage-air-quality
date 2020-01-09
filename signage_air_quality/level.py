@@ -1,11 +1,9 @@
-import textwrap
-
 class Level:
     """ An AQI Level """
     def __init__(self, index, label, description, rgb, min_aqi, max_aqi):
         self._index = index
         self._label = label
-        self._description = textwrap.dedent(description)
+        self._description = " ".join(description.split())
         self._rgb = rgb
         self._min_aqi = min_aqi
         self._max_aqi = max_aqi
