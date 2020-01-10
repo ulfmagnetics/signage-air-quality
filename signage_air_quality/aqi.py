@@ -34,6 +34,12 @@ class Aqi:
     def level_at(self, index):
         return self._levels[index-1]
 
+    def level_for_value(self, value):
+        for level in self._levels:
+            if level.min_aqi <= value and level.max_aqi >= value:
+                return level
+        raise ValueError('Unknown AQI: {0}'.format(value))
+
     @property
     def levels(self):
         return self._levels
