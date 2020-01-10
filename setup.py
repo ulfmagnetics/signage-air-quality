@@ -1,3 +1,4 @@
+from setuptools import setup, find_packages
 setup(
     name="signage-air-quality",
     version='0.0.2',
