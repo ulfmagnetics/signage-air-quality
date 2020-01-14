@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name="signage-air-quality",
-    version='0.0.2',
+    version='0.0.3',
     author='John Berry',
     author_email='ulfmagnetics@gmail.com',
     packages=find_packages(),

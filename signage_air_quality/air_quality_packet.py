@@ -10,21 +10,22 @@ of Bluefruit Connect packets e.g. ColorPacket and ButtonPacket
 """
 
 import struct
+import time
 from .packet import Packet
 
 class AirQualityPacket(Packet):
     """A packet containing data about the current AQI (PM2.5) in a given location"""
 
-    _FMT_PARSE = '<xxHsx'
+    _FMT_PARSE = '<xxHsix'
     PACKET_LENGTH = struct.calcsize(_FMT_PARSE)
     # _FMT_CONSTRUCT doesn't include the trailing checksum byte.
-    _FMT_CONSTRUCT = '<2sHs'
+    _FMT_CONSTRUCT = '<2sHsi'
     _TYPE_HEADER = b'!Q'
 
     METRIC_HEADERS = { 'PM2.5': b'P', 'O3': b'O' }
     VALID_METRICS = list(METRIC_HEADERS.keys())
 
-    def __init__(self, value, metric = 'PM2.5'):
+    def __init__(self, value, metric = 'PM2.5', timestamp = int(time.time())):
         try:
             assert self.VALID_METRICS.index(metric) >= 0
         except:
@@ -32,6 +33,7 @@ class AirQualityPacket(Packet):
 
         self._value = value
         self._metric = metric
+        self._timestamp = timestamp
 
     @classmethod
     def parse_private(cls, packet):
@@ -40,16 +42,16 @@ class AirQualityPacket(Packet):
         pylint makes it difficult to call this method _parse(), hence the name.
         """
         metric = None
-        value, metric_code = struct.unpack(cls._FMT_PARSE, packet)
+        value, metric_code, timestamp = struct.unpack(cls._FMT_PARSE, packet)
         for m, c in cls.METRIC_HEADERS.items():
             if c == metric_code:
                 metric = m
-        return cls(value, metric)
+        return cls(value, metric, timestamp)
 
     def to_bytes(self):
         """Return the bytes needed to send this packet."""
         metric_code = self.METRIC_HEADERS[self._metric]
-        partial_packet = struct.pack(self._FMT_CONSTRUCT, self._TYPE_HEADER, self._value, metric_code)
+        partial_packet = struct.pack(self._FMT_CONSTRUCT, self._TYPE_HEADER, self._value, metric_code, self.timestamp)
         return self.add_checksum(partial_packet)
 
     @property
@@ -61,6 +63,11 @@ class AirQualityPacket(Packet):
     def value(self):
         """ The value of the AQI metric """
         return self._value
+
+    @property
+    def timestamp(self):
+        """ The timestamp of the observation """
+        return self._timestamp
 
 # Register this class with the superclass. This allows the user to import only what is needed.
 AirQualityPacket.register_packet_type()
